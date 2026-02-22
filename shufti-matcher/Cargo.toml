@@ -1,0 +1,16 @@
+[package]
+name = "shufti-matcher"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+shufti-macro = { path = "../shufti-macro" }
+
+[dev-dependencies]
+rand = "0.10.0"
+criterion = { version = "0.8", features = ["html_reports"] }
+memchr = "2.8.0"
+
+[[bench]]
+harness = false
+name = "find"

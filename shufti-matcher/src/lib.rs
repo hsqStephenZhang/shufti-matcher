@@ -23,6 +23,7 @@
 
 // Re-export the derive macro for convenience (one `use` covers both).
 pub use shufti_macro::ShuftiMatcher;
+mod arch;
 
 // ---------------------------------------------------------------------------
 // ShuftiTable
@@ -43,55 +44,9 @@ impl ShuftiTable {
     ///
     /// # Safety
     /// Must be called on an AArch64 target with NEON available.
-    #[cfg(target_arch = "aarch64")]
     #[inline(always)]
     pub unsafe fn bitmask_16b(&self, data: &[u8; 16]) -> u16 {
-        use core::arch::aarch64::*;
-
-        unsafe {
-            let l_tab = vld1q_u8(self.low_tab.as_ptr());
-            let h_tab = vld1q_u8(self.high_tab.as_ptr());
-            let input = vld1q_u8(data.as_ptr());
-
-            let low_mask = vmovq_n_u8(0x0f);
-            let lo = vandq_u8(input, low_mask);
-            let hi = vshrq_n_u8(input, 4);
-
-            let lo_sf = vqtbl1q_u8(l_tab, lo);
-            let hi_sf = vqtbl1q_u8(h_tab, hi);
-            let v = vandq_u8(lo_sf, hi_sf);
-
-            // vtstq_u8: sets byte to 0xFF if (v & bit_mask) != 0
-            let matches = vtstq_u8(v, vmovq_n_u8(self.bit_mask));
-
-            // movemask: pack one bit per lane into a u16
-            let masked = vandq_u8(
-                matches,
-                vld1q_u8([1u8, 2, 4, 8, 16, 32, 64, 128, 1, 2, 4, 8, 16, 32, 64, 128].as_ptr()),
-            );
-            let res64 = vpaddlq_u8(masked);
-            let res32 = vpaddlq_u16(res64);
-            let res16 = vpaddlq_u32(res32);
-
-            let mask64: u64 = vgetq_lane_u64(res16, 0) | (vgetq_lane_u64(res16, 1) << 8);
-
-            mask64 as u16
-        }
-    }
-
-    /// Scalar fallback for non-NEON targets (used in cfg tests / CI).
-    #[cfg(not(target_arch = "aarch64"))]
-    #[inline(always)]
-    pub unsafe fn bitmask_16b(&self, data: &[u8; 16]) -> u16 {
-        let mut mask = 0u16;
-        for (i, &b) in data.iter().enumerate() {
-            let lo = (b & 0x0f) as usize;
-            let hi = (b >> 4) as usize;
-            if (self.low_tab[lo] & self.high_tab[hi] & self.bit_mask) != 0 {
-                mask |= 1 << i;
-            }
-        }
-        mask
+        unsafe { crate::arch::bitmask_16b(&self.low_tab, &self.high_tab, self.bit_mask, data) }
     }
 }
 

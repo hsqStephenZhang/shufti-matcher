@@ -2,6 +2,8 @@
 name = "shufti-macro"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "macro for shuti_matcher, a shufti table based string matcher"
 
 [lib]
 proc-macro = true

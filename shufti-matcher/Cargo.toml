@@ -2,6 +2,8 @@
 name = "shufti-matcher"
 version = "0.1.0"
 edition = "2024"
+license = "MIT"
+description = "shufti table based string matcher"
 
 [dependencies]
 cfg-if = "1.0.4"

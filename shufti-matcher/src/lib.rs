@@ -59,7 +59,7 @@ impl ShuftiTable {
 /// Implementors expose two search entry points:
 /// - [`match_16b`](Self::match_16b) – single 16-byte chunk, returns position bitmask.
 /// - [`find_first`](Self::find_first) – searches an arbitrary byte slice.
-pub trait ShuftiMatcher {
+pub trait ShuftiMatch {
     /// The literal set string provided to `#[shufti(set = "...")]`.
     const SET: &'static str;
     /// Number of distinct bytes in the set.
@@ -138,7 +138,7 @@ mod tests {
 
     /// Minimal hand-rolled implementation for testing without the macro.
     struct WsMatcher;
-    impl ShuftiMatcher for WsMatcher {
+    impl ShuftiMatch for WsMatcher {
         const SET: &'static str = "\t\r\n";
         const NEEDLE_COUNT: usize = 3;
         fn table() -> ShuftiTable {

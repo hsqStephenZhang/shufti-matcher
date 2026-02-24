@@ -5,6 +5,7 @@ use shufti_matcher::ShuftiMatch;
 #[shufti(set = "\t\r\n")]
 pub struct WsMatcher;
 
+// https://github.com/servo/rust-url/blob/a66f4220895c3cc84ae623c218466710eb3a812f/url/src/host.rs#L131
 #[derive(ShuftiMatcher)]
 #[shufti(set = "\0\t\n\r #/:<>?@[\\]^|")]
 pub struct MyMatcher;

@@ -13,6 +13,7 @@ shufti-macro = { path = "../shufti-macro", version = "0.1.0" }
 rand = "0.10.0"
 criterion = { version = "0.8", features = ["html_reports"] }
 memchr = "2.8.0"
+aho-corasick = "1.1.4"
 
 [[bench]]
 harness = false

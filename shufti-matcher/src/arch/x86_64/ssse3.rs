@@ -22,7 +22,10 @@ pub unsafe fn bitmask_16b(
 
         let bm = _mm_set1_epi8(bit_mask as i8);
         let masked = _mm_and_si128(v, bm);
-        let nonzero = _mm_cmpgt_epi8(masked, _mm_setzero_si128());
+        let nonzero = _mm_andnot_si128(
+            _mm_cmpeq_epi8(masked, _mm_setzero_si128()),
+            _mm_set1_epi8(-1),
+        );
 
         _mm_movemask_epi8(nonzero) as u16
     }

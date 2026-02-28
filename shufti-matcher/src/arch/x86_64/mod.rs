@@ -1,4 +1,3 @@
-
 cfg_if::cfg_if! {
     if #[cfg(target_feature="ssse3")] {
         mod ssse3;

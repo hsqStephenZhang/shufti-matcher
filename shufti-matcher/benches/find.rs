@@ -138,6 +138,13 @@ fn bench_group(c: &mut Criterion, label: &str, needles: &'static [u8]) {
     let haystack = build_haystack(needles);
     let table = make_table(needles);
 
+    let aho_searcher = aho_corasick::packed::Searcher::new(needles.iter().map(|c| {
+        let mut s = String::new();
+        s.push(*c as char);
+        s
+    }))
+    .unwrap();
+
     let mut group = c.benchmark_group(format!("needle_{}", label));
     group.throughput(Throughput::Bytes(haystack.len() as u64));
     group.sample_size(200);
@@ -158,6 +165,12 @@ fn bench_group(c: &mut Criterion, label: &str, needles: &'static [u8]) {
         BenchmarkId::new("memchr", label),
         &(needles, haystack.as_slice()),
         |b, (ns, hay)| b.iter(|| black_box(memchr_search(ns, black_box(hay)))),
+    );
+
+    group.bench_with_input(
+        BenchmarkId::new("aho", label),
+        &(needles, haystack.as_slice()),
+        |b, (_ns, hay)| b.iter(|| black_box(aho_searcher.find(black_box(hay)))),
     );
 
     group.finish();
